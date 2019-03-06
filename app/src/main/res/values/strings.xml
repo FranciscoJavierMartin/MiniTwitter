@@ -7,4 +7,10 @@
     <string name="btn_register">Create account</string>
     <string name="text_go_to_login">If you have an account, sign in here</string>
     <string name="hint_username">Username</string>
+    <string name="email_required">Email is required</string>
+    <string name="password_required">Password is required</string>
+    <string name="title_activity_dashboard">DashboardActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
 </resources>
