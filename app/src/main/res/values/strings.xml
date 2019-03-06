@@ -4,4 +4,7 @@
     <string name="hint_password">Password</string>
     <string name="btn_login">Login</string>
     <string name="text_create_account">New to MiniTwitter? Sing up now</string>
+    <string name="btn_register">Create account</string>
+    <string name="text_go_to_login">If you have an account, sign in here</string>
+    <string name="hint_username">Username</string>
 </resources>
