@@ -10,6 +10,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.azure.minitwitter.R;
+import com.azure.minitwitter.common.Constants;
+import com.azure.minitwitter.common.SharedPreferencesManager;
 import com.azure.minitwitter.retrofit.MiniTwitterClient;
 import com.azure.minitwitter.retrofit.MiniTwitterService;
 import com.azure.minitwitter.retrofit.request.RequestLogin;
@@ -18,6 +20,7 @@ import com.azure.minitwitter.retrofit.response.ResponseAuth;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -78,6 +81,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     if(response.isSuccessful()){
                         Toast.makeText(MainActivity.this, "Login successful",Toast.LENGTH_SHORT );
+
+                        SharedPreferencesManager
+                                .setSomeStringValue(Constants.PREF_TOKEN,response.body().getToken());
+                        SharedPreferencesManager
+                                .setSomeStringValue(Constants.PREF_USERNAME,response.body().getUsername());
+                        SharedPreferencesManager
+                                .setSomeStringValue(Constants.PREF_EMAIL,response.body().getEmail());
+                        SharedPreferencesManager
+                                .setSomeStringValue(Constants.PREF_PHOTOURL,response.body().getPhotoUrl());
+                        SharedPreferencesManager
+                                .setSomeBooleanValue(Constants.PREF_CREATED,response.body().getActive());
+
                         Intent intent = new Intent(MainActivity.this, DashboardActivity.class);
                         startActivity(intent);
                         finish();
