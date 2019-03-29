@@ -40,35 +40,42 @@ public class MyTweetRecyclerViewAdapter extends RecyclerView.Adapter<MyTweetRecy
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mItem = mValues.get(position);
+        if(mValues != null){
+            holder.mItem = mValues.get(position);
 
-        holder.tvUsername.setText(holder.mItem.getUser().getUsername());
-        holder.tvMessage.setText(holder.mItem.getMensaje());
-        holder.tvLikesCount.setText(holder.mItem.getLikes().size());
+            holder.tvUsername.setText(holder.mItem.getUser().getUsername());
+            holder.tvMessage.setText(holder.mItem.getMensaje());
+            holder.tvLikesCount.setText(String.valueOf(holder.mItem.getLikes().size()));
 
-        String photoUrl = holder.mItem.getUser().getPhotoUrl();
+            String photoUrl = holder.mItem.getUser().getPhotoUrl();
 
-        if(!holder.mItem.getUser().getPhotoUrl().equals("")){
-            Glide.with(ctx)
-                    .load("https//www.minitwitter.com/apiv1/uploads/photos/"+photoUrl)
-                    .into(holder.ivAvatar);
-        }
-
-        for(Like like: holder.mItem.getLikes()){
-            if(like.getUsername().equals(username)){
+            if(!holder.mItem.getUser().getPhotoUrl().equals("")){
                 Glide.with(ctx)
-                        .load(R.drawable.ic_like_pink)
-                        .into(holder.ivLike);
-                holder.tvLikesCount.setTextColor(ctx.getResources().getColor(R.color.pink));
-                holder.tvLikesCount.setTypeface(null, Typeface.BOLD);
+                        .load("https//www.minitwitter.com/apiv1/uploads/photos/"+photoUrl)
+                        .into(holder.ivAvatar);
             }
-            break;
+
+            for(Like like: holder.mItem.getLikes()){
+                if(like.getUsername().equals(username)){
+                    Glide.with(ctx)
+                            .load(R.drawable.ic_like_pink)
+                            .into(holder.ivLike);
+                    holder.tvLikesCount.setTextColor(ctx.getResources().getColor(R.color.pink));
+                    holder.tvLikesCount.setTypeface(null, Typeface.BOLD);
+                }
+                break;
+            }
         }
+    }
+
+    public void setData(List<Tweet> tweetList){
+        mValues = tweetList;
+        notifyDataSetChanged();
     }
 
     @Override
     public int getItemCount() {
-        return mValues.size();
+        return mValues!=null ? mValues.size() : 0;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

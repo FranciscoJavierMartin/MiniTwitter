@@ -9,4 +9,12 @@
         <item name="android:windowLightStatusBar">true</item>
     </style>
 
+    <style name="FullScreenDialogStyle" parent="Theme.AppCompat.Dialog">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorPrimary</item>
+
+        <!-- Styles for fullscreen -->
+        <item name="android:windowNoTitle"></item>
+    </style>
 </resources>

@@ -1,7 +1,11 @@
 package com.azure.minitwitter;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,7 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-
+import com.azure.minitwitter.data.TweetViewModel;
 import com.azure.minitwitter.retrofit.response.Tweet;
 
 import java.util.List;
@@ -18,22 +22,17 @@ import java.util.List;
 
 public class TweetListFragment extends Fragment {
 
-    // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
-    // TODO: Customize parameters
     private int mColumnCount = 1;
     private RecyclerView recyclerView;
     private MyTweetRecyclerViewAdapter adapter;
     List<Tweet> tweetList;
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
+    TweetViewModel tweetViewModel;
+
     public TweetListFragment() {
     }
 
-    // TODO: Customize parameter initialization
-    @SuppressWarnings("unused")
+
     public static TweetListFragment newInstance(int columnCount) {
         TweetListFragment fragment = new TweetListFragment();
         Bundle args = new Bundle();
@@ -45,6 +44,9 @@ public class TweetListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        tweetViewModel = ViewModelProviders.of(getActivity())
+                .get(TweetViewModel.class);
 
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
@@ -67,18 +69,27 @@ public class TweetListFragment extends Fragment {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
 
+            adapter = new MyTweetRecyclerViewAdapter(
+                    getActivity(),
+                    tweetList
+            );
+
+            recyclerView.setAdapter(adapter);
+
             loadTweetData();
         }
         return view;
     }
 
     private void loadTweetData() {
-        adapter = new MyTweetRecyclerViewAdapter(
-                getActivity(),
-                tweetList
-        );
+        tweetViewModel.getTweets().observe(getActivity(), new Observer<List<Tweet>>() {
+            @Override
+            public void onChanged(@Nullable List<Tweet> tweets) {
+                tweetList = tweets;
+                adapter.setData(tweetList);
+            }
+        });
 
-        recyclerView.setAdapter(adapter);
     }
 
 }
