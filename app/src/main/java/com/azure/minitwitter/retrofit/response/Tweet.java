@@ -11,9 +11,9 @@ public class Tweet {
     @SerializedName("id")
     @Expose
     private Integer id;
-    @SerializedName("mensaje")
+    @SerializedName("message")
     @Expose
-    private String mensaje;
+    private String message;
     @SerializedName("likes")
     @Expose
     private List<Like> likes = new ArrayList<Like>();
@@ -28,17 +28,24 @@ public class Tweet {
     public Tweet() {
     }
 
+    public Tweet(Tweet newTweet){
+        this.id = newTweet.getId();
+        this.message = newTweet.getMessage();
+        this.likes = newTweet.getLikes();
+        this.user = newTweet.getUser();
+    }
+
     /**
      *
      * @param id
      * @param likes
-     * @param mensaje
+     * @param message
      * @param user
      */
-    public Tweet(Integer id, String mensaje, List<Like> likes, User user) {
+    public Tweet(Integer id, String message, List<Like> likes, User user) {
         super();
         this.id = id;
-        this.mensaje = mensaje;
+        this.message = message;
         this.likes = likes;
         this.user = user;
     }
@@ -51,12 +58,12 @@ public class Tweet {
         this.id = id;
     }
 
-    public String getMensaje() {
-        return mensaje;
+    public String getMessage() {
+        return message;
     }
 
-    public void setMensaje(String mensaje) {
-        this.mensaje = mensaje;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public List<Like> getLikes() {

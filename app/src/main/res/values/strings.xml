@@ -14,4 +14,12 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="toolbar_title_home">Home</string>
+
+    <string name="new_tweet_dialog_tweet">Tweet</string>
+    <string name="new_tweet_dialog_tweet_hint">Write something</string>
+    <string name="new_tweet_dialog_cancel_tweet_header">Cancel tweet</string>
+    <string name="new_tweet_dialog_cancel_tweet_body">Are you sure to cancel this tweet?</string>
+    <string name="new_tweet_dialog_cancel_tweet_negative_button">Cancel</string>
+    <string name="new_tweet_dialog_cancel_tweet_positive_button">Delete</string>
+    <string name="new_tweet_dialog_write_a_message">You must write a message</string>
 </resources>

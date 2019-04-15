@@ -1,7 +1,6 @@
-package com.azure.minitwitter;
+package com.azure.minitwitter.ui;
 
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
@@ -14,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.azure.minitwitter.MyTweetRecyclerViewAdapter;
+import com.azure.minitwitter.R;
 import com.azure.minitwitter.data.TweetViewModel;
 import com.azure.minitwitter.retrofit.response.Tweet;
 

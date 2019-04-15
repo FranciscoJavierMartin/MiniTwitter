@@ -7,9 +7,11 @@ import android.widget.Toast;
 import com.azure.minitwitter.MyTweetRecyclerViewAdapter;
 import com.azure.minitwitter.common.MyApp;
 import com.azure.minitwitter.retrofit.AuthTwitterService;
+import com.azure.minitwitter.retrofit.request.RequestCreateTweet;
 import com.azure.minitwitter.retrofit.response.AuthTwitterClient;
 import com.azure.minitwitter.retrofit.response.Tweet;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -20,7 +22,7 @@ public class TweetRepository {
 
     AuthTwitterService authTwitterService;
     AuthTwitterClient authTwitterClient;
-    LiveData<List<Tweet>> allTweets;
+    MutableLiveData<List<Tweet>> allTweets;
 
     public TweetRepository(){
         authTwitterClient = AuthTwitterClient.getInstance();
@@ -28,17 +30,18 @@ public class TweetRepository {
         allTweets = getAllTweets();
     }
 
-    public LiveData<List<Tweet>> getAllTweets() {
-        final MutableLiveData<List<Tweet>> data = new MutableLiveData<>();
+    public MutableLiveData<List<Tweet>> getAllTweets() {
+
+        if(allTweets == null){
+            allTweets = new MutableLiveData<>();
+        }
 
         Call<List<Tweet>> call = authTwitterService.getAllTweets();
         call.enqueue(new Callback<List<Tweet>>() {
             @Override
             public void onResponse(Call<List<Tweet>> call, Response<List<Tweet>> response) {
                 if(response.isSuccessful()){
-                   data.setValue(response.body());
-
-
+                    allTweets.setValue(response.body());
                 }else{
                     Toast.makeText(MyApp.getContext(),"Something goes wrong", Toast.LENGTH_SHORT);
                 }
@@ -50,6 +53,36 @@ public class TweetRepository {
             }
         });
 
-        return data;
+        return allTweets;
+    }
+
+    public void createTweet(String message){
+        RequestCreateTweet requestCreateTweet = new RequestCreateTweet(message);
+        Call<Tweet> call = authTwitterService.createTweet(requestCreateTweet);
+
+        call.enqueue(new Callback<Tweet>() {
+            @Override
+            public void onResponse(Call<Tweet> call, Response<Tweet> response) {
+                if(response.isSuccessful()){
+                    List<Tweet> listCloned = new ArrayList<>();
+                    listCloned.add(response.body());
+
+                    for(Tweet tweet: allTweets.getValue()){
+                        listCloned.add(new Tweet(tweet));
+                    }
+
+                    allTweets.setValue(listCloned);
+                } else {
+                    // TODO: Refactor to include the error message on string
+                    Toast.makeText(MyApp.getContext(), "Something goes wrong",Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Tweet> call, Throwable t) {
+                // TODO: Refactor to include the error message on string
+                Toast.makeText(MyApp.getContext(), "Error on connection",Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
