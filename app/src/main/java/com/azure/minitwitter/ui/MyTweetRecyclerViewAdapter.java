@@ -1,4 +1,4 @@
-package com.azure.minitwitter;
+package com.azure.minitwitter.ui;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.azure.minitwitter.R;
 import com.azure.minitwitter.common.Constants;
 import com.azure.minitwitter.common.SharedPreferencesManager;
 
@@ -43,17 +44,23 @@ public class MyTweetRecyclerViewAdapter extends RecyclerView.Adapter<MyTweetRecy
         if(mValues != null){
             holder.mItem = mValues.get(position);
 
-            holder.tvUsername.setText(holder.mItem.getUser().getUsername());
+            holder.tvUsername.setText("@" + holder.mItem.getUser().getUsername());
             holder.tvMessage.setText(holder.mItem.getMessage());
             holder.tvLikesCount.setText(String.valueOf(holder.mItem.getLikes().size()));
 
             String photoUrl = holder.mItem.getUser().getPhotoUrl();
 
-            if(!holder.mItem.getUser().getPhotoUrl().equals("")){
+            if(!photoUrl.equals("")){
                 Glide.with(ctx)
                         .load("https//www.minitwitter.com/apiv1/uploads/photos/"+photoUrl)
                         .into(holder.ivAvatar);
             }
+
+            Glide.with(ctx)
+                    .load(R.drawable.ic_like)
+                    .into(holder.ivLike);
+            holder.tvLikesCount.setTextColor(ctx.getResources().getColor(android.R.color.black));
+            holder.tvLikesCount.setTypeface(null, Typeface.NORMAL);
 
             for(Like like: holder.mItem.getLikes()){
                 if(like.getUsername().equals(username)){
