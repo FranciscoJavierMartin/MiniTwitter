@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,20 +25,33 @@ public class DashboardActivity extends AppCompatActivity {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            boolean res = false;
+            boolean changeTab = false;
+            Fragment fragment = null;
 
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-
+                    fragment = TweetListFragment.newInstance(Constants.TWEET_LIST_ALL);
+                    fab.show();
                     break;
                 case R.id.navigation_tweets_like:
+                    fragment = TweetListFragment.newInstance(Constants.TWEET_LIST_FAVS);
+                    fab.hide();
                     break;
                 case R.id.navigation_profile:
 
+                    fab.hide();
                     break;
             }
 
-            return res;
+            if(fragment != null){
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .add(R.id.fragmentContainer, fragment)
+                        .commit();
+                changeTab = true;
+            }
+
+            return changeTab;
         }
     };
 
@@ -56,7 +70,7 @@ public class DashboardActivity extends AppCompatActivity {
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .add(R.id.fragmentContainer, new TweetListFragment())
+                .add(R.id.fragmentContainer, TweetListFragment.newInstance(Constants.TWEET_LIST_ALL))
                 .commit();
 
         fab.setOnClickListener(new View.OnClickListener(){

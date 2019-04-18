@@ -7,14 +7,13 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.azure.minitwitter.ui.MyTweetRecyclerViewAdapter;
+import com.azure.minitwitter.common.Constants;
 import com.azure.minitwitter.R;
 import com.azure.minitwitter.data.TweetViewModel;
 import com.azure.minitwitter.retrofit.response.Tweet;
@@ -24,8 +23,7 @@ import java.util.List;
 
 public class TweetListFragment extends Fragment {
 
-    private static final String ARG_COLUMN_COUNT = "column-count";
-    private int mColumnCount = 1;
+    private int tweetListType = 1;
     private RecyclerView recyclerView;
     private MyTweetRecyclerViewAdapter adapter;
     List<Tweet> tweetList;
@@ -36,10 +34,10 @@ public class TweetListFragment extends Fragment {
     }
 
 
-    public static TweetListFragment newInstance(int columnCount) {
+    public static TweetListFragment newInstance(int tweetListType) {
         TweetListFragment fragment = new TweetListFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_COLUMN_COUNT, columnCount);
+        args.putInt(Constants.TWEET_LIST_TYPE, tweetListType);
         fragment.setArguments(args);
         return fragment;
     }
@@ -52,7 +50,7 @@ public class TweetListFragment extends Fragment {
                 .get(TweetViewModel.class);
 
         if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
+            tweetListType = getArguments().getInt(Constants.TWEET_LIST_TYPE);
         }
     }
 
@@ -62,34 +60,68 @@ public class TweetListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_tweet_list, container, false);
 
         // Set the adapter
-            Context context = view.getContext();
-            recyclerView = view.findViewById(R.id.list);
-            swipeRefreshLayout = view.findViewById(R.id.swiperefreshlayout);
-            swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.blue));
-            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-                @Override
-                public void onRefresh() {
-                    swipeRefreshLayout.setRefreshing(true);
-                    loadNewTweetData();
+        Context context = view.getContext();
+        recyclerView = view.findViewById(R.id.list);
+        swipeRefreshLayout = view.findViewById(R.id.swiperefreshlayout);
+        swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.blue));
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                swipeRefreshLayout.setRefreshing(true);
+
+                switch (tweetListType) {
+                    case Constants.TWEET_LIST_ALL:
+                        loadNewTweetData();
+                        break;
+                    case Constants.TWEET_LIST_FAVS:
+                        loadNewFavTweetData();
+                        break;
                 }
-            });
-
-            if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            } else {
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
+        });
 
-            adapter = new MyTweetRecyclerViewAdapter(
-                    getActivity(),
-                    tweetList
-            );
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
-            recyclerView.setAdapter(adapter);
+        adapter = new MyTweetRecyclerViewAdapter(
+                getActivity(),
+                tweetList
+        );
 
-            loadTweetData();
+        recyclerView.setAdapter(adapter);
+
+        switch (tweetListType) {
+            case Constants.TWEET_LIST_ALL:
+                loadTweetData();
+                break;
+            case Constants.TWEET_LIST_FAVS:
+                loadFavTweetData();
+                break;
+        }
+
 
         return view;
+    }
+
+    private void loadNewFavTweetData() {
+        tweetViewModel.getNewTweets().observe(getActivity(), new Observer<List<Tweet>>() {
+            @Override
+            public void onChanged(@Nullable List<Tweet> tweets) {
+                tweetList = tweets;
+                swipeRefreshLayout.setRefreshing(false);
+                adapter.setData(tweetList);
+                tweetViewModel.getNewFavTweets().removeObserver(this);
+            }
+        });
+    }
+
+    private void loadFavTweetData() {
+        tweetViewModel.getTweets().observe(getActivity(), new Observer<List<Tweet>>() {
+            @Override
+            public void onChanged(@Nullable List<Tweet> tweets) {
+                tweetList = tweets;
+                adapter.setData(tweetList);
+            }
+        });
     }
 
     private void loadTweetData() {
