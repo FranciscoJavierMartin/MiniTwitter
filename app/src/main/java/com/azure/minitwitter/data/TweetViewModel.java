@@ -3,9 +3,12 @@ package com.azure.minitwitter.data;
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
+import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 
 import com.azure.minitwitter.retrofit.response.Tweet;
+import com.azure.minitwitter.ui.BottomModalTweetFragment;
 
 import java.util.List;
 
@@ -46,5 +49,14 @@ public class TweetViewModel extends AndroidViewModel {
 
     public void likeTweet(int idTweet){
         tweetRepository.likeTweet(idTweet);
+    }
+
+    public void deleteTweet(int idTweet) {
+        tweetRepository.deleteTweet(idTweet);
+    }
+
+    public void openDialogTweetMenu(Context ctx, int idTweet){
+        BottomModalTweetFragment dialogTweet = BottomModalTweetFragment.newInstance(idTweet);
+        dialogTweet.show(((AppCompatActivity)ctx).getSupportFragmentManager(),"BottomModalTweetFragment");
     }
 }

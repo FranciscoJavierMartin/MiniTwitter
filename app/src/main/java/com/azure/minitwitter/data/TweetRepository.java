@@ -11,6 +11,7 @@ import com.azure.minitwitter.retrofit.request.RequestCreateTweet;
 import com.azure.minitwitter.retrofit.response.AuthTwitterClient;
 import com.azure.minitwitter.retrofit.response.Like;
 import com.azure.minitwitter.retrofit.response.Tweet;
+import com.azure.minitwitter.retrofit.response.TweetDeleted;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -151,6 +152,37 @@ public class TweetRepository {
 
             @Override
             public void onFailure(Call<Tweet> call, Throwable t) {
+                // TODO: Refactor to include the error message on string
+                Toast.makeText(MyApp.getContext(), "Error on connection",Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void deleteTweet(final int idTweet){
+        Call<TweetDeleted> call = authTwitterService.deleteTweet(idTweet);
+
+        call.enqueue(new Callback<TweetDeleted>() {
+            @Override
+            public void onResponse(Call<TweetDeleted> call, Response<TweetDeleted> response) {
+                if(response.isSuccessful()){
+                    List<Tweet> clonedTweets = new ArrayList<>();
+
+                    for(Tweet tweet: allTweets.getValue()){
+                        if(tweet.getId() != idTweet){
+                            clonedTweets.add(new Tweet(tweet));
+                        }
+                    }
+
+                    allTweets.setValue(clonedTweets);
+                    getFavTweets();
+                } else{
+                    // TODO: Refactor to include the error message on string
+                    Toast.makeText(MyApp.getContext(), "Something goes wrong",Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<TweetDeleted> call, Throwable t) {
                 // TODO: Refactor to include the error message on string
                 Toast.makeText(MyApp.getContext(), "Error on connection",Toast.LENGTH_SHORT).show();
             }

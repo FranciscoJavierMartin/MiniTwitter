@@ -77,6 +77,19 @@ public class MyTweetRecyclerViewAdapter extends RecyclerView.Adapter<MyTweetRecy
                 }
             });
 
+            if(holder.mItem.getUser().getUsername().equals(username)){
+                holder.ivShowMenu.setVisibility(View.VISIBLE);
+            } else {
+                holder.ivShowMenu.setVisibility(View.GONE);
+            }
+
+            holder.ivShowMenu.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    tweetViewModel.openDialogTweetMenu(ctx, holder.mItem.getId());
+                }
+            });
+
             for(Like like: holder.mItem.getLikes()){
                 if(like.getUsername().equals(username)){
                     Glide.with(ctx)
@@ -104,6 +117,7 @@ public class MyTweetRecyclerViewAdapter extends RecyclerView.Adapter<MyTweetRecy
         public final View mView;
         public final ImageView ivAvatar;
         public final ImageView ivLike;
+        public final ImageView ivShowMenu;
         public final TextView tvUsername;
         public final TextView tvMessage;
         public final TextView tvLikesCount;
@@ -114,6 +128,7 @@ public class MyTweetRecyclerViewAdapter extends RecyclerView.Adapter<MyTweetRecy
             mView = view;
             ivAvatar = view.findViewById(R.id.imageViewAvatar);
             ivLike = view.findViewById(R.id.imageViewLike);
+            ivShowMenu = view.findViewById(R.id.imageViewShowMenu);
             tvUsername = view.findViewById(R.id.textViewUsername);
             tvMessage = view.findViewById(R.id.textViewMessage);
             tvLikesCount = view.findViewById(R.id.textViewLiesCount);

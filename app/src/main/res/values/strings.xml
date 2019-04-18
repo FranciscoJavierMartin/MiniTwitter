@@ -22,4 +22,6 @@
     <string name="new_tweet_dialog_cancel_tweet_negative_button">Cancel</string>
     <string name="new_tweet_dialog_cancel_tweet_positive_button">Delete</string>
     <string name="new_tweet_dialog_write_a_message">You must write a message</string>
+
+    <string name="delete_tweet_menu_item">Delete tweet</string>
 </resources>
