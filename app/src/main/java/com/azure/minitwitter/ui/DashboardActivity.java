@@ -1,7 +1,14 @@
 package com.azure.minitwitter.ui;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -9,16 +16,28 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.azure.minitwitter.R;
 import com.azure.minitwitter.common.Constants;
 import com.azure.minitwitter.common.SharedPreferencesManager;
+import com.azure.minitwitter.data.ProfileViewModel;
+import com.azure.minitwitter.ui.profile.ProfileFragment;
+import com.azure.minitwitter.ui.tweets.NewTweetDialogFragment;
+import com.azure.minitwitter.ui.tweets.TweetListFragment;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.single.PermissionListener;
 
-public class DashboardActivity extends AppCompatActivity {
+public class DashboardActivity extends AppCompatActivity implements PermissionListener {
 
     FloatingActionButton fab;
     ImageView ivAvatar;
+    ProfileViewModel profileViewModel;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -38,7 +57,7 @@ public class DashboardActivity extends AppCompatActivity {
                     fab.hide();
                     break;
                 case R.id.navigation_profile:
-
+                    fragment = new ProfileFragment();
                     fab.hide();
                     break;
             }
@@ -59,6 +78,8 @@ public class DashboardActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
+
+        profileViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
 
         fab = findViewById(R.id.fab);
         ivAvatar = findViewById(R.id.imageViewToolbarPhoto);
@@ -86,8 +107,60 @@ public class DashboardActivity extends AppCompatActivity {
         if(!photoUrl.isEmpty()){
             Glide.with(this)
                     .load(Constants.API_MINITWITTER_FILES_URL + photoUrl)
+                    .dontAnimate()
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .centerCrop()
+                    .skipMemoryCache(true)
                     .into(ivAvatar);
+        }
+
+        profileViewModel.photoProfile.observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable String photo) {
+                Glide.with(DashboardActivity.this)
+                        .load(Constants.API_MINITWITTER_FILES_URL+photo)
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .centerCrop()
+                        .skipMemoryCache(true)
+                        .into(ivAvatar);
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(resultCode != RESULT_CANCELED){
+            if(requestCode == Constants.SELECT_PHOTO_GALLERY){
+                if(data != null){
+                    Uri selectedImage = data.getData();
+                    String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                    Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+
+                    if(cursor != null){
+                        cursor.moveToFirst();
+                        int imageIndex = cursor.getColumnIndex(filePathColumn[0]);
+                        String photoPath = cursor.getString(imageIndex);
+                        profileViewModel.uploadPhoto(photoPath);
+                        cursor.close();
+                    }
+                }
+            }
         }
     }
 
+    @Override
+    public void onPermissionGranted(PermissionGrantedResponse response) {
+        Intent selectPhoto = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(selectPhoto, Constants.SELECT_PHOTO_GALLERY);
+    }
+
+    @Override
+    public void onPermissionDenied(PermissionDeniedResponse response) {
+        Toast.makeText(this, "Photo cannot be selected. Please grant permissions needed", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {
+
+    }
 }

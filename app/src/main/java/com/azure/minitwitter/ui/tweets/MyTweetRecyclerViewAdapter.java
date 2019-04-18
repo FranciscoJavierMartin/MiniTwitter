@@ -1,4 +1,4 @@
-package com.azure.minitwitter.ui;
+package com.azure.minitwitter.ui.tweets;
 
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
@@ -21,6 +21,7 @@ import com.azure.minitwitter.data.TweetViewModel;
 import com.azure.minitwitter.retrofit.response.Like;
 import com.azure.minitwitter.retrofit.response.Tweet;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.List;
 
@@ -59,7 +60,11 @@ public class MyTweetRecyclerViewAdapter extends RecyclerView.Adapter<MyTweetRecy
 
             if(!photoUrl.equals("")){
                 Glide.with(ctx)
-                        .load("https//www.minitwitter.com/apiv1/uploads/photos/"+photoUrl)
+                        .load(Constants.API_MINITWITTER_FILES_URL+photoUrl)
+                        .dontAnimate()
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .centerCrop()
+                        .skipMemoryCache(true)
                         .into(holder.ivAvatar);
             }
 

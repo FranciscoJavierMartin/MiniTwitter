@@ -1,4 +1,4 @@
-package com.azure.minitwitter.ui;
+package com.azure.minitwitter.ui.tweets;
 
 import android.app.Dialog;
 import android.arch.lifecycle.ViewModelProviders;
@@ -21,6 +21,7 @@ import com.azure.minitwitter.common.Constants;
 import com.azure.minitwitter.common.SharedPreferencesManager;
 import com.azure.minitwitter.data.TweetViewModel;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 public class NewTweetDialogFragment extends DialogFragment implements View.OnClickListener {
 
@@ -54,6 +55,10 @@ public class NewTweetDialogFragment extends DialogFragment implements View.OnCli
         if(!photoUrl.isEmpty()){
             Glide.with(getActivity())
                     .load(Constants.API_MINITWITTER_FILES_URL + photoUrl)
+                    .dontAnimate()
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .centerCrop()
+                    .skipMemoryCache(true)
                     .into(ivAvatar);
         }
 

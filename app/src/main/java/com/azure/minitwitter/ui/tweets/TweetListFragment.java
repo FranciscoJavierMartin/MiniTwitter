@@ -1,4 +1,4 @@
-package com.azure.minitwitter.ui;
+package com.azure.minitwitter.ui.tweets;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;

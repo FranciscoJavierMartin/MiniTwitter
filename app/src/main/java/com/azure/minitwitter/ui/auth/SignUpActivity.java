@@ -1,4 +1,4 @@
-package com.azure.minitwitter.ui;
+package com.azure.minitwitter.ui.auth;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -14,33 +14,32 @@ import com.azure.minitwitter.common.Constants;
 import com.azure.minitwitter.common.SharedPreferencesManager;
 import com.azure.minitwitter.retrofit.MiniTwitterClient;
 import com.azure.minitwitter.retrofit.MiniTwitterService;
-import com.azure.minitwitter.retrofit.request.RequestLogin;
+import com.azure.minitwitter.retrofit.request.RequestSignup;
 import com.azure.minitwitter.retrofit.response.ResponseAuth;
+import com.azure.minitwitter.ui.DashboardActivity;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+public class SignUpActivity extends AppCompatActivity implements View.OnClickListener{
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
-
-    Button btnLogin;
-    TextView tvGoSignUp;
-    EditText etEmail, etPassword;
+    Button btnSignUp;
+    TextView tvGoLogin;
+    EditText etUsername, etEmail, etPassword;
     MiniTwitterClient miniTwitterClient;
     MiniTwitterService miniTwitterService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_sign_up);
 
         getSupportActionBar().hide();
 
         retrofitInit();
         findViews();
         events();
-
     }
 
     @Override
@@ -48,40 +47,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int id = v.getId();
 
         switch (id){
-            case R.id.buttonLogin:
-                goToLogin();
-                break;
-            case R.id.textViewGoSignUp:
+            case R.id.buttonSignUp:
                 goToSignUp();
+                break;
+            case R.id.textViewGoLogin:
+                goToLogin();
                 break;
         }
     }
 
     private void goToSignUp() {
-        Intent i = new Intent(MainActivity.this, SignUpActivity.class);
-        startActivity(i);
-    }
-
-    private void goToLogin() {
+        String username = etUsername.getText().toString();
         String email = etEmail.getText().toString();
         String password = etPassword.getText().toString();
 
-        if(email.isEmpty()){
+        if(username.isEmpty()){
+            etUsername.setError("Username is required");
+        }else if(email.isEmpty()){
             etEmail.setError("Email is required");
         }else if(password.isEmpty()){
             etPassword.setError("Password is required");
         } else {
-            RequestLogin requestLogin = new RequestLogin(email, password);
-
-            Call<ResponseAuth> call = miniTwitterService.doLogin(requestLogin);
+            String code = "UDEMYANDROID";
+            RequestSignup requestSignup = new RequestSignup(username,email,password,code);
+            Call<ResponseAuth> call = miniTwitterService.doSignUp(requestSignup);
 
             call.enqueue(new Callback<ResponseAuth>() {
                 @Override
                 public void onResponse(Call<ResponseAuth> call, Response<ResponseAuth> response) {
-
-                    if(response.isSuccessful()){
-                        Toast.makeText(MainActivity.this, "Login successful",Toast.LENGTH_SHORT );
-
+                    if(response.isSuccessful()) {
                         SharedPreferencesManager
                                 .setSomeStringValue(Constants.PREF_TOKEN,response.body().getToken());
                         SharedPreferencesManager
@@ -92,21 +86,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 .setSomeStringValue(Constants.PREF_PHOTOURL,response.body().getPhotoUrl());
                         SharedPreferencesManager
                                 .setSomeBooleanValue(Constants.PREF_CREATED,response.body().getActive());
-
-                        Intent intent = new Intent(MainActivity.this, DashboardActivity.class);
+                        Intent intent = new Intent(SignUpActivity.this, DashboardActivity.class);
                         startActivity(intent);
                         finish();
-                    }else{
-                        Toast.makeText(MainActivity.this, "Email or password wrong",Toast.LENGTH_SHORT );
+                    }else {
+                        Toast.makeText(SignUpActivity.this, "Something goes wrong", Toast.LENGTH_SHORT);
                     }
                 }
 
                 @Override
                 public void onFailure(Call<ResponseAuth> call, Throwable t) {
-                    Toast.makeText(MainActivity.this, "Connection problem. Please try again",Toast.LENGTH_SHORT );
+                    Toast.makeText(SignUpActivity.this, "Error on connection. Please try again", Toast.LENGTH_SHORT);
                 }
             });
         }
+    }
+
+    private void goToLogin(){
+        Intent i = new Intent(SignUpActivity.this, MainActivity.class);
+        startActivity(i);
+        finish();
+    }
+
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
     }
 
     private void retrofitInit() {
@@ -114,15 +118,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         miniTwitterService = miniTwitterClient.getMiniTwitterService();
     }
 
-    private void findViews() {
-        btnLogin = findViewById(R.id.buttonLogin);
+    private void findViews(){
+        btnSignUp = findViewById(R.id.buttonSignUp);
+        tvGoLogin = findViewById(R.id.textViewGoLogin);
+        etUsername = findViewById(R.id.editTextUsername);
         etEmail = findViewById(R.id.editTextEmail);
         etPassword = findViewById(R.id.editTextPassword);
-        tvGoSignUp = findViewById(R.id.textViewGoSignUp);
     }
 
-    private void events() {
-        btnLogin.setOnClickListener(this);
-        tvGoSignUp.setOnClickListener(this);
+    private void events(){
+        tvGoLogin.setOnClickListener(this);
+        btnSignUp.setOnClickListener(this);
     }
 }
