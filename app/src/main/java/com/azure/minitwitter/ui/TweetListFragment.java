@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,7 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.azure.minitwitter.MyTweetRecyclerViewAdapter;
+import com.azure.minitwitter.ui.MyTweetRecyclerViewAdapter;
 import com.azure.minitwitter.R;
 import com.azure.minitwitter.data.TweetViewModel;
 import com.azure.minitwitter.retrofit.response.Tweet;
@@ -29,6 +30,7 @@ public class TweetListFragment extends Fragment {
     private MyTweetRecyclerViewAdapter adapter;
     List<Tweet> tweetList;
     TweetViewModel tweetViewModel;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     public TweetListFragment() {
     }
@@ -60,9 +62,17 @@ public class TweetListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_tweet_list, container, false);
 
         // Set the adapter
-        if (view instanceof RecyclerView) {
             Context context = view.getContext();
-            recyclerView = (RecyclerView) view;
+            recyclerView = view.findViewById(R.id.list);
+            swipeRefreshLayout = view.findViewById(R.id.swiperefreshlayout);
+            swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.blue));
+            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    swipeRefreshLayout.setRefreshing(true);
+                    loadNewTweetData();
+                }
+            });
 
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
@@ -78,7 +88,7 @@ public class TweetListFragment extends Fragment {
             recyclerView.setAdapter(adapter);
 
             loadTweetData();
-        }
+
         return view;
     }
 
@@ -93,4 +103,16 @@ public class TweetListFragment extends Fragment {
 
     }
 
+    private void loadNewTweetData() {
+        tweetViewModel.getNewTweets().observe(getActivity(), new Observer<List<Tweet>>() {
+            @Override
+            public void onChanged(@Nullable List<Tweet> tweets) {
+                tweetList = tweets;
+                swipeRefreshLayout.setRefreshing(false);
+                adapter.setData(tweetList);
+                tweetViewModel.getNewTweets().removeObserver(this);
+            }
+        });
+
+    }
 }
