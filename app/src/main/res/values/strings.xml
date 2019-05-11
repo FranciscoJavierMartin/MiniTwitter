@@ -9,6 +9,7 @@
     <string name="hint_username">Username</string>
     <string name="email_required">Email is required</string>
     <string name="password_required">Password is required</string>
+    <string name="username_required">Username is required</string>
     <string name="title_activity_dashboard">DashboardActivity</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
@@ -38,4 +39,8 @@
     <string name="profile_permission_needed_to_select_photo_title">Permissions needed to select photo</string>
     <string name="profile_permission_needed_to_select_photo_body">The permissions requested are needed to choose a profile photo</string>
     <string name="profile_permission_needed_to_select_photo_accept_button">Accept</string>
+
+    <string name="main_activity_login_successful">Login successful</string>
+    <string name="main_activity_email_password_wrong">Email or password wrong</string>
+    <string name="main_activity_connection_problem">Connection problem. Please try again</string>
 </resources>

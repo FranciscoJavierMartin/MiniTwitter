@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 28
@@ -46,4 +48,8 @@ dependencies {
     annotationProcessor "android.arch.lifecycle:compiler:$archLifecycleVersion"
 
     implementation 'com.karumi:dexter:5.0.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+repositories {
+    mavenCentral()
 }
